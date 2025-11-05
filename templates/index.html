@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕷️ CyberCrawl - Spider Robot Control</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="title">
+                <h1>🕷️ CyberCrawl</h1>
+                <p class="subtitle">Spider Robot Control System</p>
+            </div>
+            <div class="status-badge" id="statusBadge">
+                <span class="status-dot"></span>
+                <span class="status-text">STOPPED</span>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Video Feed Section -->
+            <div class="panel video-panel">
+                <div class="panel-header">
+                    <h2>📹 Live Camera Feed</h2>
+                    <div class="detection-count" id="detectionCount">
+                        <span class="badge">0 objects</span>
+                    </div>
+                </div>
+                <div class="video-container">
+                    <img id="videoFeed" src="{{ url_for('video_feed') }}" alt="Video Feed">
+                    <div class="distance-overlay" id="distanceOverlay">
+                        <span class="distance-icon">📏</span>
+                        <span class="distance-value">-- cm</span>
+                    </div>
+                </div>
+                <div class="detections-list" id="detectionsList">
+                    <!-- Detections will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Control Panel Section -->
+            <div class="panel control-panel">
+                <div class="panel-header">
+                    <h2>🎮 Control Panel</h2>
+                </div>
+
+                <!-- Mode Control Buttons -->
+                <div class="mode-controls">
+                    <button id="btnAutoMode" class="btn btn-primary btn-large" onclick="startAutoMode()">
+                        <span class="btn-icon">🤖</span>
+                        <span>Auto Mode</span>
+                    </button>
+                    <button id="btnStop" class="btn btn-danger btn-large" onclick="stopRobot()">
+                        <span class="btn-icon">🛑</span>
+                        <span>Stop</span>
+                    </button>
+                    <button id="btnManualMode" class="btn btn-secondary btn-large" onclick="enableManualMode()" disabled>
+                        <span class="btn-icon">⚙️</span>
+                        <span>Manual Mode</span>
+                    </button>
+                </div>
+
+                <!-- Manual Control Section -->
+                <div id="manualControls" class="manual-controls" style="display: none;">
+                    <h3>Manual Controls</h3>
+                    
+                    <!-- Direction Controls -->
+                    <div class="direction-grid">
+                        <div></div>
+                        <button class="btn btn-control" onclick="manualControl('forward')">
+                            ⬆️<br>Forward
+                        </button>
+                        <div></div>
+                        <button class="btn btn-control" onclick="manualControl('left')">
+                            ⬅️<br>Left
+                        </button>
+                        <div class="center-circle">🕷️</div>
+                        <button class="btn btn-control" onclick="manualControl('right')">
+                            ➡️<br>Right
+                        </button>
+                        <div></div>
+                        <button class="btn btn-control" onclick="manualControl('backward')">
+                            ⬇️<br>Back
+                        </button>
+                        <div></div>
+                    </div>
+
+                    <!-- Action Controls -->
+                    <div class="action-controls">
+                        <h4>Actions</h4>
+                        <div class="action-grid">
+                            <button class="btn btn-action" onclick="manualControl('wave')">
+                                👋 Wave
+                            </button>
+                            <button class="btn btn-action" onclick="manualControl('shake')">
+                                🤝 Shake
+                            </button>
+                            <button class="btn btn-action" onclick="manualControl('dance')">
+                                💃 Dance
+                            </button>
+                            <button class="btn btn-action" onclick="manualControl('stand')">
+                                🧍 Stand
+                            </button>
+                            <button class="btn btn-action" onclick="manualControl('sit')">
+                                💺 Sit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Info -->
+                <div class="status-info">
+                    <div class="info-row">
+                        <span class="info-label">Mode:</span>
+                        <span class="info-value" id="modeText">STOPPED</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Distance:</span>
+                        <span class="info-value" id="distanceText">-- cm</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Detections:</span>
+                        <span class="info-value" id="detectionsText">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>CyberCrawl Spider Robot © 2025 | Powered by Raspberry Pi 3 & YOLOv8</p>
+        </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

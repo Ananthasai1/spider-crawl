@@ -1,0 +1,23 @@
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Raspberry Pi GPIO and I2C
+RPi.GPIO==0.7.1
+smbus2==0.4.3
+
+# PCA9685 Servo Driver
+adafruit-circuitpython-pca9685==3.4.15
+adafruit-blinka==8.25.0
+
+# Camera Support
+opencv-python==4.8.1.78
+picamera2==0.3.16
+numpy==1.24.4
+
+# YOLO Object Detection
+ultralytics==8.1.0
+torch==2.1.0
+torchvision==0.16.0
+
+# Optional: For better performance
+Pillow==10.1.0
