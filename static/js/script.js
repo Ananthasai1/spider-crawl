@@ -8,6 +8,15 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🕷️ CyberCrawl Interface Loaded');
     startStatusUpdates();
     updateUIState();
+    
+    // Refresh video feed after 5 seconds to ensure it starts displaying
+    setTimeout(function() {
+        const videoFeed = document.getElementById('videoFeed');
+        if (videoFeed) {
+            const currentSrc = videoFeed.src;
+            videoFeed.src = currentSrc + '?t=' + Date.now();
+        }
+    }, 5000);
 });
 
 // ===== Status Updates =====
@@ -30,6 +39,12 @@ async function updateStatus() {
         
         // Update detections
         updateDetections(data.detections);
+        
+        // Update FPS
+        const fpsDisplay = document.getElementById('fpsDisplay');
+        if (fpsDisplay && data.fps) {
+            fpsDisplay.textContent = data.fps + ' fps';
+        }
         
     } catch (error) {
         console.error('Status update error:', error);
@@ -117,15 +132,19 @@ function updateDetections(detections) {
     
     // Update list
     detectionsList.innerHTML = '';
-    detections.forEach(detection => {
-        const item = document.createElement('div');
-        item.className = 'detection-item';
-        item.innerHTML = `
-            <span>${detection.class}</span>
-            <span class="detection-conf">${Math.round(detection.confidence * 100)}%</span>
-        `;
-        detectionsList.appendChild(item);
-    });
+    if (count === 0) {
+        detectionsList.innerHTML = '<p style="color: #a0a0b0; font-size: 0.9rem;">No objects detected</p>';
+    } else {
+        detections.forEach(detection => {
+            const item = document.createElement('div');
+            item.className = 'detection-item';
+            item.innerHTML = `
+                <span>${detection.class}</span>
+                <span class="detection-conf">${Math.round(detection.confidence * 100)}%</span>
+            `;
+            detectionsList.appendChild(item);
+        });
+    }
 }
 
 // ===== Control Functions =====

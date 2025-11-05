@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CyberCrawl Spider Robot - Enhanced Flask Server with YOLO
+CyberCrawl Spider Robot - Flask Server with YOLOv8
 Live camera feed streaming with object detection
 """
 
@@ -20,12 +20,12 @@ mode_lock = threading.Lock()
 
 # Camera and detection
 try:
-    print("ðŸŽ¥ Initializing camera...")
+    print("📷 Initializing camera...")
     camera = EnhancedCameraYOLO()
     camera.start_detection()
-    print("âœ… Camera ready!")
+    print("✅ Camera ready!")
 except Exception as e:
-    print(f"âŒ Camera initialization failed: {e}")
+    print(f"❌ Camera initialization failed: {e}")
     camera = None
 
 # Detection mode states
@@ -36,7 +36,7 @@ detection_state = {
 
 def generate_frames():
     """Video streaming generator with live camera feed and YOLO detections"""
-    print("ðŸ“¹ Starting video stream...")
+    print("📹 Starting video stream...")
     frame_count = 0
     last_log = time.time()
     
@@ -53,15 +53,19 @@ def generate_frames():
                 frame = camera.get_frame_with_detections()
                 
                 if frame is None:
-                    # Camera not ready yet
+                    # Fallback if frame is still None (shouldn't happen now)
                     frame = np.zeros((config.CAMERA_RESOLUTION[1], 
                                     config.CAMERA_RESOLUTION[0], 3), dtype=np.uint8)
-                    cv2.putText(frame, "Camera Initializing...", (100, 240),
+                    cv2.putText(frame, "Waiting for camera...", (100, 240),
                                cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 165, 255), 3)
+            
+            # Validate frame before encoding
+            if frame is None or frame.size == 0:
+                continue
             
             # Encode frame as JPEG
             ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 95])
-            if ret:
+            if ret and buffer is not None:
                 frame_bytes = buffer.tobytes()
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
@@ -71,18 +75,18 @@ def generate_frames():
             # Log every 5 seconds
             current_time = time.time()
             if current_time - last_log > 5:
-                print(f"  ðŸ“Š Streaming: {frame_count} frames sent")
+                print(f"  📊 Streaming: {frame_count} frames sent")
                 last_log = current_time
             
             time.sleep(0.01)  # ~100 FPS capability
             
         except Exception as e:
-            print(f"âŒ Frame generation error: {e}")
+            print(f"❌ Frame generation error: {e}")
             time.sleep(0.1)
 
 def auto_mode_detection():
     """Optimized detection for autonomous mode"""
-    print("ðŸ¤– Auto mode detection: FULL ACCURACY MODE")
+    print("🤖 Auto mode detection: FULL ACCURACY MODE")
     detection_state['auto_detection_active'] = True
     
     while current_mode == "AUTO" and detection_state['auto_detection_active']:
@@ -99,7 +103,7 @@ def auto_mode_detection():
                     critical_objects = ['person', 'cat', 'dog', 'car', 'motorcycle', 'bicycle']
                     
                     if class_name in critical_objects and conf > 0.65:
-                        print(f"  ðŸŽ¯ Auto: Detected {class_name} ({conf:.2f}) - AVOIDING")
+                        print(f"  🎯 Auto: Detected {class_name} ({conf:.2f}) - AVOIDING")
             
             time.sleep(0.05)
             
@@ -108,11 +112,11 @@ def auto_mode_detection():
             time.sleep(0.1)
     
     detection_state['auto_detection_active'] = False
-    print("ðŸ¤– Auto detection stopped")
+    print("🤖 Auto detection stopped")
 
 def manual_mode_detection():
     """Optimized detection for manual mode"""
-    print("âš™ï¸ Manual mode detection: CONTINUOUS TRACKING")
+    print("⚙️ Manual mode detection: CONTINUOUS TRACKING")
     detection_state['manual_detection_active'] = True
     tracked_objects = {}
     
@@ -153,7 +157,7 @@ def manual_mode_detection():
             time.sleep(0.1)
     
     detection_state['manual_detection_active'] = False
-    print("âš™ï¸ Manual detection stopped")
+    print("⚙️ Manual detection stopped")
 
 # ===== REST API Routes =====
 
@@ -177,16 +181,16 @@ def get_status():
         distance = 150.0  # Placeholder
     else:
         detections = []
-        stats = {'fps': 0, 'night_mode': False, 'detections_count': 0}
+        stats = {'fps': 0, 'detections_count': 0, 'model_loaded': False}
         distance = -1
     
     return jsonify({
         'mode': current_mode,
         'distance': distance,
         'detections': detections,
-        'fps': stats['fps'],
-        'night_vision': stats['night_mode'],
-        'detection_count': stats['detections_count'],
+        'fps': stats.get('fps', 0),
+        'detection_count': stats.get('detections_count', 0),
+        'model_loaded': stats.get('model_loaded', False),
         'timestamp': time.time()
     })
 
@@ -273,7 +277,7 @@ def get_performance():
     if camera:
         stats = camera.get_performance_stats()
     else:
-        stats = {'fps': 0, 'night_mode': False, 'detections_count': 0}
+        stats = {'fps': 0, 'detections_count': 0}
     
     return jsonify(stats)
 
@@ -292,15 +296,15 @@ def manual_control(action):
             return jsonify({'success': False, 'message': 'Unknown action'})
         
         action_emoji = {
-            'forward': 'â¬†ï¸',
-            'backward': 'â¬‡ï¸',
-            'left': 'â¬…ï¸',
-            'right': 'âž¡ï¸',
-            'wave': 'ðŸ‘‹',
-            'shake': 'ðŸ¤',
-            'dance': 'ðŸ’ƒ',
-            'stand': 'ðŸ§',
-            'sit': 'ðŸ’º'
+            'forward': '⬆️',
+            'backward': '⬇️',
+            'left': '⬅️',
+            'right': '➡️',
+            'wave': '👋',
+            'shake': '🤝',
+            'dance': '💃',
+            'stand': '🧍',
+            'sit': '💺'
         }
         
         print(f"Manual: {action_emoji.get(action, '?')} {action}")
@@ -312,22 +316,20 @@ def manual_control(action):
 
 if __name__ == '__main__':
     print("\n" + "="*70)
-    print("ðŸ•·ï¸  CyberCrawl Spider Robot - Enhanced YOLO Detection")
+    print("🕷️  CyberCrawl Spider Robot - YOLOv8 Object Detection")
     print("="*70)
-    print("âœ… Live camera feed enabled")
-    print("âœ… Real-time YOLO object detection")
-    print("âœ… Night vision with auto IR LED control")
-    print("âœ… Separate detection modes (Auto/Manual)")
-    print("âœ… Bounding boxes with confidence scores")
+    print("✅ Live camera feed enabled")
+    print("✅ Real-time YOLOv8 object detection")
+    print("✅ Bounding boxes with confidence scores")
+    print("✅ Separate detection modes (Auto/Manual)")
     print("="*70)
-    print("\nðŸŒ Starting Flask server...")
-    print("ðŸ“ Access at: http://localhost:5000")
-    print("ðŸ“ Or: http://<your-raspberry-pi-ip>:5000")
-    print("\nðŸŽ® Features:")
+    print("\n🌐 Starting Flask server...")
+    print("🔗 Access at: http://localhost:5000")
+    print("🔗 Or: http://<your-raspberry-pi-ip>:5000")
+    print("\n🎮 Features:")
     print("   - Live camera stream with detections")
     print("   - Person, object detection with boxes")
     print("   - FPS counter and performance metrics")
-    print("   - Night vision indicator")
     print("   - Auto & Manual modes")
     print("="*70 + "\n")
     

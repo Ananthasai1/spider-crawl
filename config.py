@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Configuration settings for CyberCrawl Spider Robot
+Updated for YOLOv8
 """
 
 # Flask Server Settings
@@ -56,10 +57,12 @@ MAX_DISTANCE = 200       # cm - maximum detection range
 CAMERA_RESOLUTION = (640, 480)
 CAMERA_FPS = 30
 
-# YOLO Detection Settings
-YOLO_MODEL_PATH = 'yolov8n.pt'  # Path to YOLO model
-YOLO_CONFIDENCE_THRESHOLD = 0.5
-YOLO_IOU_THRESHOLD = 0.45
+# ===== YOLOv8 Detection Settings =====
+# Use yolov8n.pt (nano - smallest & fastest)
+# Other options: yolov8s.pt, yolov8m.pt, yolov8l.pt (larger = slower but more accurate)
+YOLO_MODEL_PATH = 'yolov8n.pt'  # Path to YOLO model file
+YOLO_CONFIDENCE_THRESHOLD = 0.5   # 0.5 = 50% confidence minimum
+YOLO_IOU_THRESHOLD = 0.45         # Intersection over Union threshold
 
 # Night Vision Settings
 NIGHT_VISION_THRESHOLD = 50  # Brightness threshold for night mode
@@ -68,6 +71,6 @@ NIGHT_VISION_GPIO = 18       # GPIO pin for IR LEDs (if used)
 # Auto Mode Settings
 AUTO_MODE_LOOP_DELAY = 0.05  # seconds between sensor readings
 
-# Servo Calibration (adjust these if needed)
+# Servo Calibration
 # Format: [min_pulse, max_pulse] for 0-180 degrees
 SERVO_PULSE_RANGE = [150, 600]  # Typical SG90 servo values
